@@ -1,0 +1,230 @@
+<!-- src/app/features/detalle/detalle.component.html -->
+<div class="dashboard">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn-back" (click)="goBack()">← Volver</button>
+      <div class="topbar-logo">EDT <span>// dashboard</span></div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user">eixon · admin</span>
+      <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <!-- LOADING -->
+  <div class="loading-wrap" *ngIf="loading()">
+    <div class="spinner"></div>
+    <span>Cargando solicitud...</span>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-wrap" *ngIf="error()">{{ error() }}</div>
+
+  <!-- CONTENIDO -->
+  <div class="content-wrap" *ngIf="!loading() && !error() && solicitud() as s">
+
+    <!-- HEADER DE LA SOLICITUD -->
+    <div class="request-header">
+      <div class="request-header-left">
+        <div class="request-id">#{{ s.id }}</div>
+        <div>
+          <h1 class="request-title">{{ s.project_name }}</h1>
+          <div class="request-meta">
+            {{ s.stakeholder_name }}
+            <span *ngIf="s.stakeholder_email"> · {{ s.stakeholder_email }}</span>
+            <span> · {{ s.elicitation_date | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+      <span class="badge" [ngClass]="statusBadgeClass(s.status)">
+        {{ STATUS_LABELS[s.status] }}
+      </span>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-row">
+      <button class="tab" [class.active]="activeTab() === 'info'"   (click)="setTab('info')">Información</button>
+      <button class="tab" [class.active]="activeTab() === 'notas'"  (click)="setTab('notas')">
+        Notas <span class="tab-count" *ngIf="notes().length">{{ notes().length }}</span>
+      </button>
+      <button class="tab" [class.active]="activeTab() === 'estado'" (click)="setTab('estado')">Estado</button>
+    </div>
+
+    <!-- TAB: INFORMACIÓN -->
+    <div class="tab-content" *ngIf="activeTab() === 'info'">
+      <div class="info-grid">
+
+        <!-- ESTRATÉGICO -->
+        <div class="info-section">
+          <div class="section-title">Estratégico</div>
+          <div class="field-block">
+            <div class="field-label">Objetivo de negocio</div>
+            <div class="field-value">{{ s.business_objective }}</div>
+          </div>
+          <div class="field-block">
+            <div class="field-label">Problema a resolver</div>
+            <div class="field-value">{{ s.problem_to_solve }}</div>
+          </div>
+          <div class="field-block">
+            <div class="field-label">Alcance</div>
+            <div class="field-value">{{ s.project_scope }}</div>
+          </div>
+          <div class="field-block" *ngIf="s.out_of_scope">
+            <div class="field-label">Fuera de alcance</div>
+            <div class="field-value">{{ s.out_of_scope }}</div>
+          </div>
+        </div>
+
+        <!-- FUNCIONAL -->
+        <div class="info-section" *ngIf="s.functional">
+          <div class="section-title">Funcional</div>
+          <div class="field-block">
+            <div class="field-label">User Story</div>
+            <div class="field-value italic">{{ s.functional.user_story }}</div>
+          </div>
+          <div class="field-block" *ngIf="s.functional.business_rules">
+            <div class="field-label">Reglas de negocio</div>
+            <div class="field-value">{{ s.functional.business_rules }}</div>
+          </div>
+          <div class="field-row-2" *ngIf="s.functional.preconditions || s.functional.postconditions">
+            <div class="field-block" *ngIf="s.functional.preconditions">
+              <div class="field-label">Precondiciones</div>
+              <div class="field-value">{{ s.functional.preconditions }}</div>
+            </div>
+            <div class="field-block" *ngIf="s.functional.postconditions">
+              <div class="field-label">Postcondiciones</div>
+              <div class="field-value">{{ s.functional.postconditions }}</div>
+            </div>
+          </div>
+          <div class="field-block">
+            <div class="field-label">Prioridad MoSCoW</div>
+            <div class="field-value">
+              <span class="badge badge-reviewed">{{ MOSCOW_LABELS[s.functional.moscow_priority] }}</span>
+            </div>
+          </div>
+          <div class="field-block" *ngIf="s.functional.dependencies">
+            <div class="field-label">Dependencias</div>
+            <div class="field-value">{{ s.functional.dependencies }}</div>
+          </div>
+        </div>
+
+        <!-- ACTORES -->
+        <div class="info-section" *ngIf="s.actors.length">
+          <div class="section-title">Actores ({{ s.actors.length }})</div>
+          <div class="actor-card" *ngFor="let a of s.actors">
+            <div class="actor-header">
+              <span class="actor-type" [class.secondary]="a.actor_type === 'secondary'">
+                {{ a.actor_type === 'primary' ? 'Primario' : 'Secundario' }}
+              </span>
+              <span class="actor-name">{{ a.actor_name }}</span>
+            </div>
+            <div class="actor-perms" *ngIf="a.permissions">{{ a.permissions }}</div>
+          </div>
+        </div>
+
+        <!-- CALIDAD RNF -->
+        <div class="info-section" *ngIf="s.rnf_performance || s.rnf_security || s.rnf_usability">
+          <div class="section-title">Calidad RNF</div>
+          <div class="field-block" *ngIf="s.rnf_performance">
+            <div class="field-label">Rendimiento</div>
+            <div class="field-value">{{ s.rnf_performance }}</div>
+          </div>
+          <div class="field-block" *ngIf="s.rnf_security">
+            <div class="field-label">Seguridad</div>
+            <div class="field-value">{{ s.rnf_security }}</div>
+          </div>
+          <div class="field-block" *ngIf="s.rnf_usability">
+            <div class="field-label">Usabilidad</div>
+            <div class="field-value">{{ s.rnf_usability }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB: NOTAS -->
+    <div class="tab-content" *ngIf="activeTab() === 'notas'">
+      <div class="notes-wrap">
+        <div class="notes-list">
+          <div class="empty-notes" *ngIf="notes().length === 0">
+            No hay notas internas aún. Agrega la primera abajo.
+          </div>
+          <div class="note-item" *ngFor="let n of notes()">
+            <div class="note-date">{{ n.created_at | date:'dd/MM/yyyy · HH:mm' }}</div>
+            <div class="note-content">{{ n.content }}</div>
+          </div>
+        </div>
+
+        <div class="note-form">
+          <label class="form-label">Nueva nota interna</label>
+          <textarea class="form-textarea"
+                    [(ngModel)]="newNote"
+                    [ngModel]="newNote()"
+                    (ngModelChange)="newNote.set($event)"
+                    rows="4"
+                    placeholder="Escribe una nota interna sobre esta solicitud...">
+          </textarea>
+          <button class="btn-add-note"
+                  (click)="addNote()"
+                  [disabled]="savingNote() || !newNote().trim()">
+            {{ savingNote() ? 'Guardando...' : 'Agregar nota' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: ESTADO -->
+    <div class="tab-content" *ngIf="activeTab() === 'estado'">
+      <div class="estado-wrap">
+
+        <div class="estado-section">
+          <div class="section-title">Cambiar estado de la solicitud</div>
+          <div class="field-block">
+            <div class="field-label">Estado actual</div>
+            <span class="badge" [ngClass]="statusBadgeClass(s.status)">
+              {{ STATUS_LABELS[s.status] }}
+            </span>
+          </div>
+
+          <div class="field-block">
+            <label class="form-label">Nuevo estado</label>
+            <select class="form-select status-select"
+                    [ngModel]="selectedStatus()"
+                    (ngModelChange)="selectedStatus.set($event)">
+              <option *ngFor="let opt of statusOptions" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+          </div>
+
+          <button class="btn-save-status"
+                  (click)="saveStatus()"
+                  [disabled]="savingStatus() || selectedStatus() === s.status">
+            {{ savingStatus() ? 'Guardando...' : 'Guardar estado' }}
+          </button>
+
+          <div class="status-msg success" *ngIf="statusMsg() && !statusMsg().includes('Error')">
+            {{ statusMsg() }}
+          </div>
+          <div class="status-msg error" *ngIf="statusMsg() && statusMsg().includes('Error')">
+            {{ statusMsg() }}
+          </div>
+        </div>
+
+        <div class="meta-section">
+          <div class="section-title">Metadata</div>
+          <div class="meta-grid">
+            <div class="meta-row"><span class="meta-key">ID</span><span class="meta-val">#{{ s.id }}</span></div>
+            <div class="meta-row"><span class="meta-key">Creado</span><span class="meta-val">{{ s.created_at | date:'dd/MM/yyyy HH:mm' }}</span></div>
+            <div class="meta-row"><span class="meta-key">Actualizado</span><span class="meta-val">{{ s.updated_at | date:'dd/MM/yyyy HH:mm' }}</span></div>
+            <div class="meta-row" *ngIf="s.ip_address"><span class="meta-key">IP</span><span class="meta-val">{{ s.ip_address }}</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

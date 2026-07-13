@@ -1,0 +1,58 @@
+/* src/styles.css */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --bg:            #0a0a0f;
+  --bg2:           #111118;
+  --bg3:           #16161f;
+  --text:          #e8e8e8;
+  --text-muted:    #888899;
+  --accent:        #00ffc8;
+  --accent-dim:    rgba(0,255,200,0.08);
+  --accent-border: rgba(0,255,200,0.25);
+  --red:           #ff3c5f;
+  --border:        rgba(255,255,255,0.07);
+  --font-display:  'Syne', sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar          { width: 4px; height: 4px; }
+::-webkit-scrollbar-track    { background: var(--bg); }
+::-webkit-scrollbar-thumb    { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus { border-color: var(--accent-border); }
+.form-textarea { resize: vertical; line-height: 1.6; }
+.form-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 6px;
+}

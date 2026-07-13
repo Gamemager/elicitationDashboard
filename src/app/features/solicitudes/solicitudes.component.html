@@ -1,0 +1,134 @@
+<!-- src/app/features/solicitudes/solicitudes.component.html -->
+<div class="dashboard">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-logo">EDT <span>// dashboard</span></div>
+    <div class="topbar-right">
+      <span class="topbar-user">eixon · admin</span>
+      <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-section">Panel</div>
+
+      <div class="sidebar-item" [class.active]="activeFilter() === 'all'"
+           (click)="setFilter('all')">
+        <span class="sidebar-dot"></span>
+        Solicitudes
+        <span class="sidebar-count">{{ counts().total }}</span>
+      </div>
+      <div class="sidebar-item" [class.active]="activeFilter() === ElicitationStatus.PENDING"
+           (click)="setFilter(ElicitationStatus.PENDING)">
+        <span class="sidebar-dot"></span>
+        Pendientes
+        <span class="sidebar-count" *ngIf="counts().pending">{{ counts().pending }}</span>
+      </div>
+      <div class="sidebar-item" [class.active]="activeFilter() === ElicitationStatus.REVIEWED"
+           (click)="setFilter(ElicitationStatus.REVIEWED)">
+        <span class="sidebar-dot"></span>
+        Revisadas
+        <span class="sidebar-count" *ngIf="counts().reviewed">{{ counts().reviewed }}</span>
+      </div>
+      <div class="sidebar-item" [class.active]="activeFilter() === ElicitationStatus.IN_PROGRESS"
+           (click)="setFilter(ElicitationStatus.IN_PROGRESS)">
+        <span class="sidebar-dot"></span>
+        En progreso
+        <span class="sidebar-count" *ngIf="counts().in_progress">{{ counts().in_progress }}</span>
+      </div>
+      <div class="sidebar-item" [class.active]="activeFilter() === ElicitationStatus.CLOSED"
+           (click)="setFilter(ElicitationStatus.CLOSED)">
+        <span class="sidebar-dot"></span>
+        Cerradas
+        <span class="sidebar-count" *ngIf="counts().closed">{{ counts().closed }}</span>
+      </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num">{{ counts().total }}</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num amber">{{ counts().pending }}</div>
+          <div class="stat-label">Pendientes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num blue">{{ counts().in_progress }}</div>
+          <div class="stat-label">En progreso</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num accent">{{ counts().reviewed }}</div>
+          <div class="stat-label">Revisadas</div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filters-row">
+        <button
+          *ngFor="let f of filters"
+          class="filter-btn"
+          [class.active]="activeFilter() === f.value"
+          (click)="setFilter(f.value)">
+          {{ f.label }}
+        </button>
+      </div>
+
+      <!-- LOADING -->
+      <div class="loading-state" *ngIf="loading()">
+        <div class="spinner"></div>
+        <span>Cargando solicitudes...</span>
+      </div>
+
+      <!-- ERROR -->
+      <div class="error-state" *ngIf="error()">{{ error() }}</div>
+
+      <!-- TABLA -->
+      <div class="table-wrap" *ngIf="!loading() && !error()">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Proyecto</th>
+              <th>Stakeholder</th>
+              <th>Email</th>
+              <th>MoSCoW</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of filtered()"
+                [routerLink]="['/solicitudes', s.id]"
+                class="table-row">
+              <td class="td-id">#{{ s.id }}</td>
+              <td class="td-name">{{ s.project_name }}</td>
+              <td>{{ s.stakeholder_name }}</td>
+              <td class="td-email">{{ s.stakeholder_email ?? '—' }}</td>
+              <td>{{ MOSCOW_LABELS[s.moscow_priority] }}</td>
+              <td>
+                <span class="badge" [ngClass]="statusClass(s.status)">
+                  {{ STATUS_LABELS[s.status] }}
+                </span>
+              </td>
+              <td class="td-date">{{ s.created_at | date:'dd/MM/yy' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="empty-state" *ngIf="filtered().length === 0">
+          No hay solicitudes con este estado.
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
