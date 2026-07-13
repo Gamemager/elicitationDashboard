@@ -13,7 +13,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ElicitationService {
   private readonly http = inject(HttpClient);
-  private readonly base = `${environment.apiUrl}/elicitation`;
+  private readonly base = `${environment.apiUrl}/api/v1/elicitation`;
  
   getAll(): Observable<ElicitationSummary[]> {
     return this.http
