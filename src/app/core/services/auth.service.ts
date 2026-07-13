@@ -17,7 +17,7 @@ export class AuthService {
  
   login(username: string, password: string): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>(`${environment.apiUrl}/auth/login`, { username, password })
+      .post<LoginResponse>(`${environment.apiUrl}/api/v1/auth/login`, { username, password })
       .pipe(
         tap(res => {
           if (res.success && res.data?.token) {
